@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        
+        <title>Simon's Amazing Path Generator</title>
+        
+        <script src="https://www.desmos.com/api/v1.7/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    
+    </head>
+    
+    <body>
+        
+        <div id="calculator" style="width: 900px; height: 500px;"></div>
+        
+        <script>
+        
+            //Testing query string: ?u=1&x=1&x=2&y=1&y=2&br&u=4&x=2&x=3&y=4&y=2&
+            
+            var myCalculator = Desmos.Calculator(document.getElementById('calculator'));
+            const urlSearchParams = new URLSearchParams(window.location.search);
+            var queryString = new String();
+            queryString = urlSearchParams.toString();
+
+            //Splits the original query string into chunks
+            var chunk = queryString.split("&br");
+            
+            var latexString = new String;
+            
+            var xString = new String;
+            var yString = new String;
+
+            var startTime = 0;
+            var endTime = 0;
+
+            var xPowerCounter = 0;
+            var yPowerCounter = 0;
+            var graphIDCounter = 1;
+
+
+            for(let i = 0; i < chunk.length; i++){
+                
+                //Splits the chunks into their coeffecient and time values
+                var values = chunk[i].split("&");
+
+                
+                for(let j = 0; j < values.length; j++){
+                    
+                    
+                    if(values[j].includes("u=")){
+                        endTime = values[j].substring(values[j].indexOf("=")+1);
+                    }
+                    else if(values[j].includes("x=")){
+                        xString = xString + "(" + values[j].substring(values[j].indexOf("=")+1) + "t^" + xPowerCounter + ")+";
+                        xPowerCounter++;
+                    }
+                    else if(values[j].includes("y=")){
+                        yString = yString + "(" + values[j].substring(values[j].indexOf("=")+1) + "t^" + yPowerCounter + ")+";
+                        yPowerCounter++;
+                    }
+
+                }
+
+                //Take out the final + sign that shouldn't be there
+                xString = xString.substring(0, xString.length-1);
+                yString = yString.substring(0, yString.length-1);
+                
+                latexString = "("+ xString + "," + yString + ")";
+                
+                myCalculator.setExpression({id: graphIDCounter, latex: latexString});
+                myCalculator.setExpression({id: graphIDCounter, parametricDomain: {min: startTime, max: endTime}});
+                
+                startTime = endTime;
+                xString = "";
+                yString = "";
+                xPowerCounter = 0;
+                yPowerCounter = 0;
+                graphIDCounter++;
+                
+                
+                
+            }
+        
+
+        </script>
+    </body>
+</html>
