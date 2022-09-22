@@ -24,8 +24,7 @@ public class PathGenerator extends CommandBase {
 
   private double[][] allCoordinates = 
   {{0,0}, {1,1}, endChunk,
-  {1,1}, {2,1}, {6,5}, {0.1,5.0}, endChunk,
-  {0.1,5.0}, {-1.333,-5}, {3,14}, endChunk,
+  {1,1}, {2,1}, {6,5}, {10,6}, endChunk,
   endPath};
 
   private double[][] chunk = new double[4][3];
@@ -115,7 +114,7 @@ public class PathGenerator extends CommandBase {
   
     try {
 
-      URI desmosURI = new URI("https://dashguy999.github.io/DesmosTesting/");
+      URI desmosURI = new URI("https://atlee-circuitree.github.io/CircuitWeaveV2/");
 
       //SmartDashboard.putString("desmosURI.getQuery before", desmosURI.getQuery());
 
