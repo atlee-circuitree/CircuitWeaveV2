@@ -2,6 +2,13 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
+
+
+//This is the main paper I referenced when creating this file:
+//https://people.cs.clemson.edu/~dhouse/courses/405/notes/splines.pdf
+
+
+
 package frc.robot.commands;
 
 import java.math.BigDecimal;
@@ -18,7 +25,9 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 
 public class PathGenerator extends CommandBase {
   
-  double[][] coords = {{1,1}, {2,3}, {3,-2}, {4,5}};
+  //coords are written in the form (u,x,y)
+  //u being the order in which the robot drives through the points
+  double[][] coords = {{0,0,0}, {1,3,1}, {2,1,2}, {3,4,-1}};
   double beginningSlope = 0;
   double endingSlope = -1;
 
@@ -27,14 +36,14 @@ public class PathGenerator extends CommandBase {
   int coef = 1;
   int matrixOffset = 0;
 
-  //A really big matrix. Contains all of the function constraints and modified x values
+  //A really big matrix. Contains all of the function constraints and modified u values
   SimpleMatrix megaMatrix = new SimpleMatrix((coords.length-1)*4, (coords.length-1)*4);
   
-  //Holds the y values and specified slopes. It is used with megaMatrix to solve for the coeffecients
-  SimpleMatrix yMatrix = new SimpleMatrix((coords.length-1)*4, 1);
+  //Holds the x/y values and input slopes. It is used with megaMatrix to solve for the x/y coeffecients
+  SimpleMatrix solverMatrix = new SimpleMatrix((coords.length-1)*4, 1);
   
   //Holds all of the calculated coeffecients of each function
-  SimpleMatrix coefMatrix = new SimpleMatrix(1, (coords.length-1)*4);
+  SimpleMatrix coefMatrix = new SimpleMatrix((coords.length-1)*4, 2);
 
   
   //Used to order the matrix rows on the sim SmartDashboard (they come up in alphabetical order)
@@ -43,7 +52,7 @@ public class PathGenerator extends CommandBase {
   public PathGenerator() {
 
 
-    //// FILL MEGAMATRIX START (x matrix) ////////////////////////////////////////////////////////////////////////////////////
+    //// FILL MEGAMATRIX START (u matrix) ////////////////////////////////////////////////////////////////////////////////////
     
    
     //Make sure that the starting point of the path has the correct slope (fill line 1)
@@ -123,7 +132,7 @@ public class PathGenerator extends CommandBase {
 
     
     
-    //We still have 3 lines to go, each correspoding to the last function
+    //There are still have 3 lines to go, each correspoding to the last function
 
     //Make sure that the last function touches its first endpoint
     for(int i = 0; i < 4; i++){
@@ -153,41 +162,53 @@ public class PathGenerator extends CommandBase {
     //// FILL MEGAMATRIX END /////////////////////////////////////////////////////////////////////////////////////////
 
 
+
     
-    //Now we fill the Y Matrix, which will be used to solve for the coeffecients
-
-    //Put the 1st specified slope as the top spot
-    yMatrix.set(0, 0, beginningSlope);
     
-    //Manually fill the 2nd line to make the for loop more effecient
-    yMatrix.set(1, 0, coords[0][1]);
+    //The following lines fill the solver Matrix, which will be used to solve for the coeffecients
+    //We fill it and solve it twice, once for the x coefs and once for the y coefs
 
-    subscript = 1;
 
-    //fill the middle function y values
-    for(int i = 0; i < coords.length-2; i++){
+    for(int xy = 1; xy < 3; xy++){
+
+
+      //Put the 1st specified slope as the top spot
+      solverMatrix.set(0, 0, beginningSlope);
       
-      //used to determine which row to put values on
-      int n = i * 4;
+      //Manually fill the 2nd line to make the for loop more effecient
+      solverMatrix.set(1, 0, coords[0][xy]);
 
-      yMatrix.set(n + 2, 0, coords[subscript][1]);
-      yMatrix.set(n + 3, 0, 0);
-      yMatrix.set(n + 4, 0, 0);
-      yMatrix.set(n + 5, 0, coords[subscript][1]);
+      subscript = 1;
 
-      subscript++;
+      //fill the middle function x/y values
+      for(int i = 0; i < coords.length-2; i++){
+        
+        //used to determine which row to put values on
+        int n = i * 4;
 
+        solverMatrix.set(n + 2, 0, coords[subscript][xy]);
+        solverMatrix.set(n + 3, 0, 0);
+        solverMatrix.set(n + 4, 0, 0);
+        solverMatrix.set(n + 5, 0, coords[subscript][xy]);
+
+        subscript++;
+
+      }
+
+      //Manually fill the 2nd to last line
+      solverMatrix.set(solverMatrix.numRows()-2, 0, coords[subscript][xy]);
+
+      //Set the 2nd specified slope as the last line
+      solverMatrix.set(solverMatrix.numRows()-1, 0, endingSlope);
+
+
+
+      coefMatrix.insertIntoThis(0, xy-1, megaMatrix.invert().mult(solverMatrix));
+    
+    
     }
 
-    //Manually fill the 2nd to last line
-    yMatrix.set(yMatrix.numRows()-2, 0, coords[subscript][1]);
 
-    //Set the 2nd specified slope as the last line
-    yMatrix.set(yMatrix.numRows()-1, 0, endingSlope);
-
-
-
-    coefMatrix = megaMatrix.invert().mult(yMatrix);
 
 
 
@@ -200,13 +221,13 @@ public class PathGenerator extends CommandBase {
     }
 
 
-    //Put yMatrix onto SmartDashboard
-    String yString = "";
+    //Put solverMatrix onto SmartDashboard
+    String solverString = "";
 
-    for(int i = 0; i < yMatrix.numRows(); i++){
-      yString = yString + String.valueOf(yMatrix.get(i, 0)) + ", ";
+    for(int i = 0; i < solverMatrix.numRows(); i++){
+      solverString = solverString + String.valueOf(solverMatrix.get(i, 0)) + ", ";
     }
-    SmartDashboard.putString("Y Matrix", yString);
+    SmartDashboard.putString("Y Matrix", solverString);
 
 
     //Put coefMatrix onto SmartDashboard
@@ -215,8 +236,15 @@ public class PathGenerator extends CommandBase {
     for(int i = 0; i < coefMatrix.numRows(); i++){
       coefString = coefString + String.valueOf(coefMatrix.get(i, 0)) + ", ";
     }
-    SmartDashboard.putString("Z Coef Matrix", coefString);
+    SmartDashboard.putString("Z X Coef Matrix", coefString);
 
+
+    coefString = "";
+
+    for(int i = 0; i < coefMatrix.numRows(); i++){
+      coefString = coefString + String.valueOf(coefMatrix.get(i, 1)) + ", ";
+    }
+    SmartDashboard.putString("Z Y Coef Matrix", coefString);
 
 
 
