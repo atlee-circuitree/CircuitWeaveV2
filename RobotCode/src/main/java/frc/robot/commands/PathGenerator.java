@@ -204,11 +204,40 @@ public class PathGenerator extends CommandBase {
 
 
       coefMatrix.insertIntoThis(0, xy-1, megaMatrix.invert().mult(solverMatrix));
-    
+
     
     }
 
 
+
+    //DOES NOT WORK RIGHT NOW
+
+    //Setting up query string
+    //Testing query string: ?u=1&x=1&x=2&y=1&y=2&br&u=4&x=2&x=3&y=4&y=2&
+
+    String queryString = "";
+    //Second parameter should be coefMatrix.numRows()/4
+    for(int i = 0; i < coefMatrix.numRows()/4; i++){
+
+      //Set up ending u value
+      queryString = queryString + "u=" + String.valueOf(coords[i+1][0]) + "&";
+
+      //Set up X coefs
+      for(int j = 0; j < 4; j++){
+        queryString = queryString + "x=" + String.format("%.2g%n", coefMatrix.get(j + (i*4), 0)) + "&";
+      }
+
+      //Set up Y coefs
+      for(int j = 0; j < 4; j++){
+        queryString = queryString + "y=" + String.format("%.2g%n", coefMatrix.get(j + (i*4), 1)) + "&";
+      }
+
+      queryString = queryString + "br&";
+
+    }
+
+
+    SmartDashboard.putString("QueryString", queryString);
 
 
 
