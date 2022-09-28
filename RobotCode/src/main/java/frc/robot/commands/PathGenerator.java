@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 import java.awt.Desktop;
 import java.io.IOException;
 
@@ -27,9 +28,9 @@ public class PathGenerator extends CommandBase {
   
   //coords are written in the form (u,x,y)
   //u being the order in which the robot drives through the points
-  double[][] coords = {{0,0,0}, {1,3,1}, {2,1,2}, {3,4,-1}};
-  double beginningSlope = 0;
-  double endingSlope = -1;
+  double[][] coords = {{0,0,0}, {1,3,1}, {2,1,2}, {3,2,0}, {4,4,-1}};
+  double beginningSlope = 2;
+  double endingSlope = -4;
 
   int subscript = 0;
   int pow = 0;
@@ -44,6 +45,9 @@ public class PathGenerator extends CommandBase {
   
   //Holds all of the calculated coeffecients of each function
   SimpleMatrix coefMatrix = new SimpleMatrix((coords.length-1)*4, 2);
+
+  //Used to round the calculated values
+  DecimalFormat rounder = new DecimalFormat("###.####");
 
   
   //Used to order the matrix rows on the sim SmartDashboard (they come up in alphabetical order)
@@ -224,22 +228,57 @@ public class PathGenerator extends CommandBase {
 
       //Set up X coefs
       for(int j = 0; j < 4; j++){
-        queryString = queryString + "x=" + String.format("%.2g%n", coefMatrix.get(j + (i*4), 0)) + "&";
+        queryString = queryString + "x=" + rounder.format(coefMatrix.get(j + (i*4), 0)) + "&";
+        
       }
 
       //Set up Y coefs
       for(int j = 0; j < 4; j++){
-        queryString = queryString + "y=" + String.format("%.2g%n", coefMatrix.get(j + (i*4), 1)) + "&";
+        queryString = queryString + "y=" + rounder.format(coefMatrix.get(j + (i*4), 1)) + "&";
       }
 
       queryString = queryString + "br&";
 
     }
 
+    //Shave off the extra br&
+    queryString = queryString.substring(0,queryString.length()-3);
 
+
+    //Opening Desmos
+    try {
+
+      URI desmosURI = new URI("https://atlee-circuitree.github.io/CircuitWeaveV2/");
+
+      //SmartDashboard.putString("desmosURI.getQuery before", desmosURI.getQuery());
+
+      
+      
+      URI newDesmosURI = new URI(desmosURI.getScheme(), desmosURI.getAuthority(),
+      desmosURI.getPath(), queryString, desmosURI.getFragment());
+
+      SmartDashboard.putString("Generated URL", newDesmosURI.toString());
+      SmartDashboard.putString("desmosURI.getQuery after", newDesmosURI.getQuery());
+      
+      Desktop.getDesktop().browse(newDesmosURI);
+      
+
+
+  } 
+  catch (URISyntaxException e) {
+      SmartDashboard.putString("ERROR", "Something Went Wrong (catch1)");
+  }
+  catch(IOException e){
+      SmartDashboard.putString("ERROR", "Something Went Wrong (catch2)");
+  }
+
+
+
+
+
+
+    //Puts the query string onto SmartDashboard
     SmartDashboard.putString("QueryString", queryString);
-
-
 
 
     //Put megaMatrix onto SmartDashboard
@@ -280,6 +319,12 @@ public class PathGenerator extends CommandBase {
   }
 
   
+
+
+
+
+
+
 
 
   //Converts a SimpleMatrix to a String[]
