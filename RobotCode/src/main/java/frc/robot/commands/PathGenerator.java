@@ -214,8 +214,6 @@ public class PathGenerator extends CommandBase {
 
 
 
-    //DOES NOT WORK RIGHT NOW
-
     //Setting up query string
     //Testing query string: ?u=1&x=1&x=2&y=1&y=2&br&u=4&x=2&x=3&y=4&y=2&
 
@@ -241,7 +239,7 @@ public class PathGenerator extends CommandBase {
 
     }
 
-    //Shave off the extra br&
+    //Shave off the extra br&  
     queryString = queryString.substring(0,queryString.length()-3);
 
 

@@ -11,16 +11,22 @@ You should also be able to take the derivative of that function and do some othe
 
 public class PathEQ {
 
+    //
     private double[] xCoefs;
     private double[] yCoefs;
 
+    /** 
+    * @param xCoeffecients The [n][0] values of this array should be the U values denoting where each function ends, NOT THE 1ST X COEFFICIENT
+    * @param yCoeffecients The [n][0] values of this array should be the U values denoting where each function ends, NOT THE 1ST Y COEFFICIENT
+    */
     public PathEQ(double[] xCoeffecients, double[] yCoeffecients){
 
-        //NOTE: Check if coefs get fed smallest-largest exponent or vice versa
+        //Coefs get fed smallest-largest exponent
         xCoefs = xCoeffecients;
         yCoefs = yCoeffecients;
 
     }
+
 
     public double[] solve(double uValue){
 
