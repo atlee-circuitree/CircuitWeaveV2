@@ -23,12 +23,13 @@ import org.ejml.simple.SimpleMatrix;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.PathEQ;
 
 public class PathGenerator extends CommandBase {
   
   //coords are written in the form (u,x,y)
   //u being the order in which the robot drives through the points
-  double[][] coords = {{0,0,0}, {1,3,1}, {2,1,2}, {3,2,0}, {4,4,-1}};
+  double[][] coords = {{0,0,0}, {1,1,1}, {2,2,2}, {3,2,-1}, {4,4,-2}};
   double beginningSlope = 2;
   double endingSlope = -4;
 
@@ -213,6 +214,34 @@ public class PathGenerator extends CommandBase {
     }
 
 
+    //Create a new PathEQ
+
+    double[][] pathEQXCoefs = new double[coefMatrix.numRows()][5];
+    double[][] pathEQYCoefs = new double[coefMatrix.numRows()][5];
+
+
+    for(int i = 0; i < coefMatrix.numRows()/4; i++){
+
+      //Set up ending u value
+      pathEQXCoefs[i][0] = coords[i+1][0];
+
+      //Set up X coefs
+      for(int j = 0; j < 4; j++){
+        pathEQXCoefs[i][j+1] = coefMatrix.get(j + (i*4), 0);
+      }
+
+      //Set up Y coefs
+      for(int j = 0; j < 4; j++){
+        pathEQYCoefs[i][j+1] = coefMatrix.get(j + (i*4), 1);
+      }
+    }
+
+    PathEQ pathEQ = new PathEQ(pathEQXCoefs, pathEQYCoefs);
+
+    SmartDashboard.putNumberArray("PathEQ Solve 3", pathEQ.solve(3));
+
+
+
 
     //Setting up query string
     //Testing query string: ?u=1&x=1&x=2&y=1&y=2&br&u=4&x=2&x=3&y=4&y=2&
@@ -241,6 +270,7 @@ public class PathGenerator extends CommandBase {
 
     //Shave off the extra br&  
     queryString = queryString.substring(0,queryString.length()-3);
+
 
 
     //Opening Desmos
