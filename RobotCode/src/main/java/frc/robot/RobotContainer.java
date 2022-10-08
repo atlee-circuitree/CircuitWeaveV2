@@ -6,9 +6,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.DriveWithXbox;
+import frc.robot.commands.PathFollower;
 import frc.robot.commands.PathGenerator;
-import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj2.command.Command;
 
 /**
@@ -19,17 +20,31 @@ import edu.wpi.first.wpilibj2.command.Command;
  */
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
 
-  private final ExampleCommand m_autoCommand = new ExampleCommand(m_exampleSubsystem);
+  private final Drivetrain drivetrain;
+
+  private final DriveWithXbox driveWithXbox;
 
   private final PathGenerator pathGenerator;
+  private final PathFollower pathFollower;
+
+
+  public XboxController xbox = new XboxController(0);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
+    
+    drivetrain = new Drivetrain();
+
+    //Teleop commands
+    driveWithXbox = new DriveWithXbox(drivetrain, xbox, false);
+    driveWithXbox.addRequirements(drivetrain);
+    drivetrain.setDefaultCommand(driveWithXbox);
 
     pathGenerator = new PathGenerator();
+
+    pathFollower = new PathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.01);
 
     configureButtonBindings();
   }
@@ -49,6 +64,6 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return m_autoCommand;
+    return pathFollower;
   }
 }

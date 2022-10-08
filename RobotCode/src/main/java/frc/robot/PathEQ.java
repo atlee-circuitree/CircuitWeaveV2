@@ -76,21 +76,22 @@ public class PathEQ {
      * @param point1 Pass in as {X1,Y1}
      * @param point2 Pass in as {X2,Y2}
      * @return The slope of the line passing through both points
-     * @apiNote This method will return pi if the slope is undefined (vertical) because it won't let me return a null value
+     * @apiNote This method will return Double.POSITIVE_INFINITY or Double.NEGATIVE_INFINITY if the slope is undefined (vertical)
      */
 
     public double slope(double[] point1, double[] point2){
-
-        try{
-            return (point2[1] - point1[1]) / (point2[0] - point1[0]);
-        }
-        catch(ArithmeticException exception){
-            return Math.PI;
-        }
+        return(point2[1] - point1[1]) / (point2[0] - point1[0]);
     }
 
 
+    public double getFinalUValue(){
+        return xCoefs[xCoefs.length-1][0];
+    }
 
+    public double[] getLastRowofXCoefs(){
+        return xCoefs[xCoefs.length-1];
+    }
+    
 
 
 }
