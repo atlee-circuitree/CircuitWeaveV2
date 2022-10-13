@@ -521,14 +521,6 @@ public double getOdometryZ(){
   return odometry.getPoseMeters().getRotation().getDegrees();
 }
 
-public double getAbsOdometryX(){
-  return Math.abs(odometry.getPoseMeters().getX());
-}
-public double getAbsOdometryY(){
-  return Math.abs(odometry.getPoseMeters().getY());
-}
-
-
 public void resetOdometry(Pose2d pose2d) {
   odometry.resetPosition(pose2d, navx.getRotation2d());
 }
