@@ -27,11 +27,14 @@ import frc.robot.PathEQ;
 
 public class PathGenerator extends CommandBase {
   
+  //CHANGE LATER, THIS IS JUST FOR TESTING
+  public PathEQ pathEQ = null;
+
   //coords are written in the form (u,x,y)
   //u being the order in which the robot drives through the points
-  double[][] coords = {{0,0,0}, {1,1,1}, {2,2,2}, {3,2,-1}, {4,4,-2}};
-  double beginningSlope = 2;
-  double endingSlope = -4;
+  double[][] coords = {{0,0,0}, {1,0,0.25}, {2,0,0.5}, {3,0,0.75}, {4,0,1}};
+  double beginningSlope = 0;
+  double endingSlope = 0;
 
   int subscript = 0;
   int pow = 0;
@@ -216,8 +219,8 @@ public class PathGenerator extends CommandBase {
 
     //Create a new PathEQ
 
-    double[][] pathEQXCoefs = new double[coefMatrix.numRows()][5];
-    double[][] pathEQYCoefs = new double[coefMatrix.numRows()][5];
+    double[][] pathEQXCoefs = new double[coefMatrix.numRows()/4][5];
+    double[][] pathEQYCoefs = new double[coefMatrix.numRows()/4][5];
 
 
     for(int i = 0; i < coefMatrix.numRows()/4; i++){
@@ -236,9 +239,14 @@ public class PathGenerator extends CommandBase {
       }
     }
 
-    PathEQ pathEQ = new PathEQ(pathEQXCoefs, pathEQYCoefs);
+    pathEQ = new PathEQ(pathEQXCoefs, pathEQYCoefs);
 
     SmartDashboard.putNumberArray("PathEQ Solve 3", pathEQ.solve(3));
+
+
+
+
+
 
 
 
@@ -294,10 +302,13 @@ public class PathGenerator extends CommandBase {
 
   } 
   catch (URISyntaxException e) {
-      SmartDashboard.putString("ERROR", "Something Went Wrong (catch1)");
+    SmartDashboard.putString("ERROR", "Something Went Wrong (catch1)");
   }
   catch(IOException e){
-      SmartDashboard.putString("ERROR", "Something Went Wrong (catch2)");
+    SmartDashboard.putString("ERROR", "Something Went Wrong (catch2)");
+  }
+  catch(Exception e){
+    SmartDashboard.putString("ERROR", "Something Went Wrong (catch3)");
   }
 
 
@@ -310,12 +321,13 @@ public class PathGenerator extends CommandBase {
 
 
     //Put megaMatrix onto SmartDashboard
+    /*
     String[] megaString = matrixToStringArray(megaMatrix);
 
     for(int i = 1; i < megaString.length+1; i++){
       SmartDashboard.putString(theAlphabet[i-1] + " Row " + i , megaString[i-1]);
     }
-
+    
 
     //Put solverMatrix onto SmartDashboard
     String solverString = "";
@@ -342,7 +354,7 @@ public class PathGenerator extends CommandBase {
     }
     SmartDashboard.putString("Z Y Coef Matrix", coefString);
 
-
+    */
 
   }
 
