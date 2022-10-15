@@ -22,6 +22,7 @@ public class PathFollower extends CommandBase {
   
   private PathEQ pathEQ;
   private double slope;
+  private double slopeSign;
 
   private double targetUValue = 0;
   private double[] targetPoint = new double[2];
@@ -64,7 +65,7 @@ public class PathFollower extends CommandBase {
     //Calculate the slope of the line passing through our current position and the target position
     double[] currentPos = {drivetrain.getRoundedOdometryY(), drivetrain.getRoundedOdometryX()};
     slope = pathEQ.slope(currentPos, pathEQ.solve(targetUValue));
-
+    slopeSign = Math.abs(slope)/slope;
 
     //Find new target value
     targetPoint = pathEQ.solve(targetUValue);
@@ -100,49 +101,32 @@ public class PathFollower extends CommandBase {
     
     }
 
-    //If the path runs entirely horizontal, the slope will likely be a very small number
-    //This is due to tiny errors in my coeffecients, since I am rounding them
-    else if(Math.abs(slope) < 0.001){
-      //Figure out whether we want to go straight left or straight right
-      //If the target X value is to the right of the current X value, we go to the right
-      if(targetPoint[0] > currentPos[0]){
-        forward = 0;
-        strafe = 1;
-      }
-      //Otherwise, we go to the left
-      else{
-        forward = 0;
-        strafe = -1;
-      }
-    }
 
-    //If the |slope| > 1, then we know that the forward value has to be 1 or -1 depending if the slope is +/- (respectively) 
+    //If the |slope| > 1, then we know that the forward value has to be 1 or -1, and the strafe value has to be < 1 or > -1
     else if(Math.abs(slope) >= 1){
-      //If the target X value is to the right of the current X value, we go to the right
-      if(targetPoint[0] > currentPos[0]){
-        //This will give either 1 if slope > 1 or -1 if slope < -1
-        forward = Math.abs(slope)/slope;
-        strafe = 1/slope;
+      //If the target Y value is above the current one, we go up and to the left/right depending on the slope sign
+      if(targetPoint[1] > currentPos[1]){
+        forward = 1;
+        strafe = (Math.abs(1/slope)) * slopeSign;
       }
-      //Otherwise we go to the left
+      //Otherwise we go down and to the right/left
       else{
-        forward = Math.abs(slope)/slope;
-        strafe = -1/slope;
+        forward = -1;
+        strafe = (Math.abs(1/slope)) * -slopeSign;
       }
     }
 
-    //If the |slope| < 1, then we know that the strafe value has to be 1 or -1 depending if the slope is +/- (respectively) 
+    //If the |slope| < 1, then we know that the strafe value has to be 1 or -1 and the fwd value has to be < 1 or > -1
     else if(Math.abs(slope) < 1){
-      //If the target X value is to the right of the current X value, we go to the right
-      if(targetPoint[0] > currentPos[0]){
-        //This will give either a positive value if slope > 1 or a negative value if slope < -1
-        forward = (Math.abs(slope)/slope)*(1/slope);
-        strafe = 1;
+      //If the target Y value is above the current one, we go up and to the left/right depending on the slope sign 
+      if(targetPoint[1] > currentPos[1]){
+        forward = Math.abs(1/slope);
+        strafe = 1 * slopeSign;
       }
       //Otherwise we go to the left
       else{
-        forward = (Math.abs(slope)/slope)*(1/slope);
-        strafe = -1;
+        forward = -Math.abs(1/slope);
+        strafe = -1 * slopeSign;
       }
     }
 
