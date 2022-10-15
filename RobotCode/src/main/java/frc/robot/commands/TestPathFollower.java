@@ -16,7 +16,7 @@ import frc.robot.subsystems.Drivetrain.SwerveModule;
 
 import java.lang.Math;
 
-public class PathFollower extends CommandBase {
+public class TestPathFollower extends CommandBase {
 
   private final Drivetrain drivetrain;
   
@@ -35,8 +35,10 @@ public class PathFollower extends CommandBase {
   private double tolerance = 0.1;
 
   private boolean isFinished = false;
+
+  private double artificialY;
  
-  public PathFollower(Drivetrain dt, PathEQ pathEquation, double speed, double pointTolerance) {
+  public TestPathFollower(Drivetrain dt, PathEQ pathEquation, double speed, double pointTolerance) {
     
     drivetrain = dt;
     pathEQ = pathEquation;
@@ -48,7 +50,9 @@ public class PathFollower extends CommandBase {
   }
 
   @Override
-  public void initialize() {}
+  public void initialize() {
+    artificialY = 0;
+  }
 
   @Override
   public void execute() {
@@ -62,7 +66,7 @@ public class PathFollower extends CommandBase {
 
 
     //Calculate the slope of the line passing through our current position and the target position
-    double[] currentPos = {drivetrain.getRoundedOdometryY(), drivetrain.getRoundedOdometryX()};
+    double[] currentPos = {0, artificialY};
     slope = pathEQ.slope(currentPos, pathEQ.solve(targetUValue));
 
 
@@ -181,105 +185,19 @@ public class PathFollower extends CommandBase {
 
     SmartDashboard.putNumber("Slope", slope);
 
+    SmartDashboard.putNumber("Artifical Y", artificialY);
 
+    artificialY = artificialY + 0.01;
 
-
-    //Regular Teleop from here on out
-
-
-    //Modify target values for field orientation (temp used to save calculations before original forward and strafe values are modified)
-    double temp = forward * Math.cos(-drivetrain.getNavXOutputRadians()) + strafe * Math.sin(-drivetrain.getNavXOutputRadians()); 
-    strafe = -forward * Math.sin(-drivetrain.getNavXOutputRadians()) + strafe * Math.cos(-drivetrain.getNavXOutputRadians()); 
-    forward = temp;
-
-    
-    //Do some math to calculate the angles/sppeds needed to meet the target vectors
-    //I don't have enough space or brainpower to say what A,B,C and D actually represent, but the swerve documentation does it well 
-    double A = strafe - (rotation * (Constants.wheelbase/Constants.drivetrainRadius));
-    double B = strafe + (rotation * (Constants.wheelbase/Constants.drivetrainRadius));
-    double C = forward - (rotation * (Constants.trackwidth/Constants.drivetrainRadius));
-    double D = forward + (rotation * (Constants.trackwidth/Constants.drivetrainRadius));
-
-    //Calculates module speeds
-    double frontLeftSpeed = Math.sqrt(Math.pow(B, 2) + Math.pow(C, 2));
-    double frontRightSpeed = Math.sqrt(Math.pow(B, 2) + Math.pow(D, 2));
-    double rearLeftSpeed = Math.sqrt(Math.pow(A, 2) + Math.pow(C, 2));
-    double rearRightSpeed = Math.sqrt(Math.pow(A, 2) + Math.pow(D, 2));
-
-    //Normalizes speeds (makes sure that none are > 1)
-    double max = frontLeftSpeed;
-    if(max < frontRightSpeed){
-      max = frontRightSpeed;
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      SmartDashboard.putString("Exc", "TRIGGERED");
     }
-    if(max < rearLeftSpeed){
-      max = rearLeftSpeed;
-    } 
-    if(max < rearRightSpeed){
-      max = rearRightSpeed;
-    }
-    if(max > 1){
-      frontLeftSpeed = frontLeftSpeed / max;
-      frontRightSpeed = frontRightSpeed / max;
-      rearLeftSpeed = rearLeftSpeed / max;
-      rearRightSpeed = rearRightSpeed / max;
-    }
-
-    //Make SURE the robot stops whenthe joysticks are 0
-    if(forward == 0 && strafe == 0 && rotation == 0){
-      drivetrain.rotateMotor(Motors.FRONT_LEFT_DRV, 0);
-      drivetrain.rotateMotor(Motors.FRONT_RIGHT_DRV, 0);
-      drivetrain.rotateMotor(Motors.REAR_LEFT_DRV, 0);
-      drivetrain.rotateMotor(Motors.REAR_RIGHT_DRV, 0);
-
-      drivetrain.rotateModule(SwerveModule.FRONT_LEFT, Math.atan2(B, C)*(180/Math.PI), 0);
-      drivetrain.rotateModule(SwerveModule.FRONT_RIGHT, Math.atan2(B, D)*(180/Math.PI), 0);
-      drivetrain.rotateModule(SwerveModule.REAR_LEFT, Math.atan2(A, C)*(180/Math.PI), 0);
-      drivetrain.rotateModule(SwerveModule.REAR_RIGHT, Math.atan2(A, D)*(180/Math.PI), 0);
-    }
-    else{
-      //Set angles for modules (change speed mod later if needed)
-      drivetrain.rotateModule(SwerveModule.FRONT_LEFT, Math.atan2(B, C)*(180/Math.PI), 1);
-      drivetrain.rotateModule(SwerveModule.FRONT_RIGHT, Math.atan2(B, D)*(180/Math.PI), 1);
-      drivetrain.rotateModule(SwerveModule.REAR_LEFT, Math.atan2(A, C)*(180/Math.PI), 1);
-      drivetrain.rotateModule(SwerveModule.REAR_RIGHT, Math.atan2(A, D)*(180/Math.PI), 1);
-
-      //Set speeds for modules
-      drivetrain.rotateMotor(Motors.FRONT_LEFT_DRV, frontLeftSpeed * speedMod);
-      drivetrain.rotateMotor(Motors.FRONT_RIGHT_DRV, frontRightSpeed * speedMod);
-      drivetrain.rotateMotor(Motors.REAR_LEFT_DRV, rearLeftSpeed * speedMod);
-      drivetrain.rotateMotor(Motors.REAR_RIGHT_DRV, rearRightSpeed * speedMod);
-    }
-
-    //Show important values on dashboard
-
-
-
-    //Reset gyro button
-    /*
-    if(xbox.getBackButtonPressed()){
-      drivetrain.zeroNavXYaw();
-      drivetrain.resetOdometry(new Pose2d(new Translation2d(0, new Rotation2d(0)), new Rotation2d(0)));
-    }
-    */
   }  
 
   @Override
   public void end(boolean interrupted){
-
-    forward = 0;
-    strafe = 0;
-    rotation = 0;
-
-    drivetrain.rotateMotor(Motors.FRONT_LEFT_DRV, 0);
-    drivetrain.rotateMotor(Motors.FRONT_RIGHT_DRV, 0);
-    drivetrain.rotateMotor(Motors.REAR_LEFT_DRV, 0);
-    drivetrain.rotateMotor(Motors.REAR_RIGHT_DRV, 0);
-
-    drivetrain.rotateModule(SwerveModule.FRONT_LEFT, Math.atan2(0, 0)*(180/Math.PI), 0);
-    drivetrain.rotateModule(SwerveModule.FRONT_RIGHT, Math.atan2(0, 0)*(180/Math.PI), 0);
-    drivetrain.rotateModule(SwerveModule.REAR_LEFT, Math.atan2(0, 0)*(180/Math.PI), 0);
-    drivetrain.rotateModule(SwerveModule.REAR_RIGHT, Math.atan2(0, 0)*(180/Math.PI), 0);
-
   }
 
   @Override

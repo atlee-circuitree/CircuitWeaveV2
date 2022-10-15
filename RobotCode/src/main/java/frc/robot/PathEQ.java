@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /* 
 This will eventually become a custom object that can store a chunk of coeffecients from PathGenerator
 You should also be able to take the derivative of that function and do some other useful stuff with it    
@@ -13,6 +15,9 @@ public class PathEQ {
 
     private double[][] xCoefs;
     private double[][] yCoefs;
+
+    String[] theAlphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "X", "Y", "Z"};
+  
 
     /** 
     * @apiNote The [n][0] values of each input array should be the U values denoting where each function ends, NOT THE 1ST X/Y COEFFICIENT
@@ -26,6 +31,12 @@ public class PathEQ {
     }
 
 
+    public void dashboardYCoefs(){
+        for(int i = 0; i < yCoefs.length; i++){
+            SmartDashboard.putNumberArray(String.valueOf(i), yCoefs[i]);
+        }
+    }
+
 
     /**
      * @param uValue Input a U value
@@ -33,20 +44,28 @@ public class PathEQ {
     */
     public double[] solve(double uValue){
 
-
         //Figure out which chunk of coefs contains the U value that we are searching for
 
         double[] subXCoefs = new double[5];
         double[] subYCoefs = new double[5];
 
-        for(int i = 0; i < xCoefs.length-1; i++){
-            if(xCoefs[i][0] >= uValue){
-                subXCoefs = xCoefs[i];
-                subYCoefs = yCoefs[i];
-                break;
+        //If the requested uValue is larger than the defined function, grab the last row of coefs
+        if(uValue >= getFinalUValue()){
+            subXCoefs = xCoefs[xCoefs.length-1];
+            subYCoefs = yCoefs[yCoefs.length-1];
+            uValue = getFinalUValue();
+            SmartDashboard.putNumber("BREAKPOINT", 1);
+        }
+        else{
+            //Otherwise seacrh for which row of coefs contains the correct u value
+            for(int i = 0; i < xCoefs.length; i++){
+                if(xCoefs[i][0] >= uValue){
+                    subXCoefs = xCoefs[i];
+                    subYCoefs = yCoefs[i];
+                    break;
+                }
             }
         }
-
 
         double[] result = {0,0};
         int powCounter = 0;
@@ -58,12 +77,17 @@ public class PathEQ {
             powCounter++;
         }
         powCounter = 0;
+
+        SmartDashboard.putNumber("X result", result[0]);
         
         //Go through each Y term and add them together
         for(int i = 1; i < subYCoefs.length; i++){
             result[1] = result[1] + (subYCoefs[i] * Math.pow(uValue, powCounter));
             powCounter++;
         }
+
+        SmartDashboard.putNumber("Y result", result[1]);
+        SmartDashboard.putNumberArray("subY coefs", subYCoefs);
         
         return result;
 

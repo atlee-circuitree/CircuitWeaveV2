@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.DriveWithXbox;
 import frc.robot.commands.PathFollower;
 import frc.robot.commands.PathGenerator;
+import frc.robot.commands.TestPathFollower;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -27,6 +28,7 @@ public class RobotContainer {
 
   private final PathGenerator pathGenerator;
   private final PathFollower pathFollower;
+  private final TestPathFollower testPathFollower;
 
 
   public XboxController xbox = new XboxController(0);
@@ -45,6 +47,8 @@ public class RobotContainer {
     pathGenerator = new PathGenerator();
 
     pathFollower = new PathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.01);
+    testPathFollower = new TestPathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.01);
+    
 
     configureButtonBindings();
   }

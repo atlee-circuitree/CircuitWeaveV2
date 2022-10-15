@@ -14,6 +14,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
 
+import java.text.DecimalFormat;
+
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -50,6 +52,7 @@ public class Drivetrain extends SubsystemBase {
   AHRS navx;
 
   SwerveDriveOdometry odometry;
+  DecimalFormat odometryRounder = new DecimalFormat("##.##");
 
   public static String drivetrainDashboard;
 
@@ -521,11 +524,14 @@ public double getOdometryZ(){
   return odometry.getPoseMeters().getRotation().getDegrees();
 }
 
-public double getAbsOdometryX(){
-  return Math.abs(odometry.getPoseMeters().getX());
+public double getRoundedOdometryX(){
+  return Double.valueOf(odometryRounder.format(Math.abs(odometry.getPoseMeters().getX())));
 }
-public double getAbsOdometryY(){
-  return Math.abs(odometry.getPoseMeters().getY());
+public double getRoundedOdometryY(){
+  return Double.valueOf(odometryRounder.format(Math.abs(odometry.getPoseMeters().getY())));
+}
+public double getRoundedOdometryZ(){
+  return Double.valueOf(odometryRounder.format(Math.abs(odometry.getPoseMeters().getRotation().getDegrees())));
 }
 
 

@@ -32,7 +32,7 @@ public class PathGenerator extends CommandBase {
 
   //coords are written in the form (u,x,y)
   //u being the order in which the robot drives through the points
-  double[][] coords = {{0,0,0}, {1,0,0.25}, {2,0,0.5}, {3,0,0.75}, {4,0,1}};
+  double[][] coords = {{0,0,0}, {1,0,1}, {2,0,2}};
   double beginningSlope = 0;
   double endingSlope = 0;
 
@@ -227,6 +227,7 @@ public class PathGenerator extends CommandBase {
 
       //Set up ending u value
       pathEQXCoefs[i][0] = coords[i+1][0];
+      pathEQYCoefs[i][0] = coords[i+1][0];
 
       //Set up X coefs
       for(int j = 0; j < 4; j++){
@@ -242,8 +243,8 @@ public class PathGenerator extends CommandBase {
     pathEQ = new PathEQ(pathEQXCoefs, pathEQYCoefs);
 
     SmartDashboard.putNumberArray("PathEQ Solve 3", pathEQ.solve(3));
-
-
+    SmartDashboard.putNumberArray("PathEQ Solve 2.99", pathEQ.solve(2.99));
+    pathEQ.dashboardYCoefs();
 
 
 
