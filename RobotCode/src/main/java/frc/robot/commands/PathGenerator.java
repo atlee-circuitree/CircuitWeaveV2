@@ -242,9 +242,10 @@ public class PathGenerator extends CommandBase {
 
     pathEQ = new PathEQ(pathEQXCoefs, pathEQYCoefs);
 
-    SmartDashboard.putNumberArray("PathEQ Solve 3", pathEQ.solve(3));
-    SmartDashboard.putNumberArray("PathEQ Solve 2.99", pathEQ.solve(2.99));
-    pathEQ.dashboardYCoefs();
+    //SmartDashboard.putNumberArray("PathEQ Solve 3", pathEQ.solve(3));
+    //SmartDashboard.putNumberArray("PathEQ Solve 2.99", pathEQ.solve(2.99));
+    //pathEQ.dashboardYCoefs();
+    //SmartDashboard.putNumber("test mult infinity", Double.POSITIVE_INFINITY*-1);
 
 
 

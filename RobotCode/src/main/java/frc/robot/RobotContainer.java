@@ -46,8 +46,8 @@ public class RobotContainer {
 
     pathGenerator = new PathGenerator();
 
-    pathFollower = new PathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.01);
-    testPathFollower = new TestPathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.01);
+    pathFollower = new PathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.05);
+    testPathFollower = new TestPathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.05);
     
 
     configureButtonBindings();
@@ -67,7 +67,7 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
     return pathFollower;
+    //return testPathFollower;
   }
 }

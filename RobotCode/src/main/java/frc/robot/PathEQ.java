@@ -54,7 +54,7 @@ public class PathEQ {
             subXCoefs = xCoefs[xCoefs.length-1];
             subYCoefs = yCoefs[yCoefs.length-1];
             uValue = getFinalUValue();
-            SmartDashboard.putNumber("BREAKPOINT", 1);
+            //SmartDashboard.putNumber("BREAKPOINT", 1);
         }
         else{
             //Otherwise seacrh for which row of coefs contains the correct u value
@@ -78,7 +78,7 @@ public class PathEQ {
         }
         powCounter = 0;
 
-        SmartDashboard.putNumber("X result", result[0]);
+        //SmartDashboard.putNumber("X result", result[0]);
         
         //Go through each Y term and add them together
         for(int i = 1; i < subYCoefs.length; i++){
@@ -86,8 +86,8 @@ public class PathEQ {
             powCounter++;
         }
 
-        SmartDashboard.putNumber("Y result", result[1]);
-        SmartDashboard.putNumberArray("subY coefs", subYCoefs);
+        //SmartDashboard.putNumber("Y result", result[1]);
+        //SmartDashboard.putNumberArray("subY coefs", subYCoefs);
         
         return result;
 
@@ -104,9 +104,19 @@ public class PathEQ {
      */
 
     public double slope(double[] point1, double[] point2){
-        return(point2[1] - point1[1]) / (point2[0] - point1[0]);
+        return (point2[1] - point1[1]) / (point2[0] - point1[0]);
     }
 
+    /**
+     * @param point1 Pass in as {X1,Y1}
+     * @param point2 Pass in as {X2,Y2}
+     * @return {Run, Rise}
+     */
+
+    public double[] slopeRiseRun(double[] point1, double[] point2){
+        double[] riseRunArray = {point2[0]-point1[0], point2[1]-point1[1]};
+        return riseRunArray;
+    }
 
     public double getFinalUValue(){
         return xCoefs[xCoefs.length-1][0];
