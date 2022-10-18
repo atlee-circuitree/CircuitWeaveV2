@@ -28,14 +28,14 @@ public class PathFollower extends CommandBase {
 
   private double targetUValue = 0;
   private double[] targetPoint = new double[2];
-  private double uIncrement = 0.5;
+  private double uIncrement = 0.2;
 
   private double forward = 0;
   private double strafe = 0;
   private double rotation = 0;
 
-  private double speedMod = 1;
-  private double tolerance = 0.1;
+  private double speedMod;
+  private double tolerance;
 
   private boolean isFinished = false;
  
@@ -132,7 +132,7 @@ public class PathFollower extends CommandBase {
     }
 
     forward = -forward;
-    //strafe = -strafe;
+    strafe = -strafe;
 
 
     /* OLD CODE
@@ -339,7 +339,7 @@ public class PathFollower extends CommandBase {
     if(targetPoint[0] - tolerance < currentPos[0] && currentPos[0] < targetPoint[0] + tolerance){
       //And the current target Y value
       if(targetPoint[1] - tolerance < currentPos[1] && currentPos[1] < targetPoint[1] + tolerance){
-        //Set the next target u value and point
+        //Set the next target u value
         targetUValue = targetUValue + uIncrement;
       }
     }

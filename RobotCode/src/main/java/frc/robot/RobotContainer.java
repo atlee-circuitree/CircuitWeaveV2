@@ -46,7 +46,7 @@ public class RobotContainer {
 
     pathGenerator = new PathGenerator();
 
-    pathFollower = new PathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.05);
+    pathFollower = new PathFollower(drivetrain, pathGenerator.pathEQ, 0.25, 0.05);
     testPathFollower = new TestPathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.05);
     
 
