@@ -240,7 +240,7 @@ public class PathGenerator extends CommandBase {
       }
     }
 
-    pathEQ = new PathEQ(pathEQXCoefs, pathEQYCoefs);
+    //pathEQ = new PathEQ(pathEQXCoefs, pathEQYCoefs);
 
     //SmartDashboard.putNumberArray("PathEQ Solve 3", pathEQ.solve(3));
     //SmartDashboard.putNumberArray("PathEQ Solve 2.99", pathEQ.solve(2.99));
