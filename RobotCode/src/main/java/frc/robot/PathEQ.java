@@ -62,9 +62,9 @@ public class PathEQ {
         //Make sure that the starting point of the path has the correct slope (fill line 1)
         matrixOffset = 1;
         for(int i = 0; i < 3; i++){
-        megaMatrix.set(0, i + matrixOffset, coef * Math.pow(coords[subscript][0], pow));
-        pow++;
-        coef++;
+            megaMatrix.set(0, i + matrixOffset, coef * Math.pow(coords[subscript][0], pow));
+            pow++;
+            coef++;
         }
         pow = 0;
         coef = 0;
@@ -79,58 +79,58 @@ public class PathEQ {
 
         for(int bigLoop = 0; bigLoop < coords.length-2; bigLoop++){
 
-        //Used to determine which row to put numbers on
-        int n = bigLoop * 4;
+            //Used to determine which row to put numbers on
+            int n = bigLoop * 4;
 
-        //Make sure that the current function touches its first endpoint
-        for(int i = 0; i < 4; i++){
-            megaMatrix.set(n+1, i + matrixOffset, Math.pow(coords[subscript][0], pow));
-            pow++;
-        }
-        pow = 0;
+            //Make sure that the current function touches its first endpoint
+            for(int i = 0; i < 4; i++){
+                megaMatrix.set(n+1, i + matrixOffset, Math.pow(coords[subscript][0], pow));
+                pow++;
+            }
+            pow = 0;
 
-        //Make sure that the current function touches its second endpoint
-        subscript++;
-        for(int i = 0; i < 4; i++){
-            megaMatrix.set(n+2, i + matrixOffset, Math.pow(coords[subscript][0], pow));
-            pow++;
-        }
-        pow = -1;
-
-        //Make sure that both funcitons touching the 2nd endpoint have equal 1st derivatives
-        //There are 2 "parts" to this line, with the 2nd being the inverse of the 1st
-        int invert = 1;
-        int inlineOffset = 0;
-        for(int i = 0; i < 2; i++){
-            for(int j = 0; j < 4; j++){
-            megaMatrix.set(n+3, j + inlineOffset + matrixOffset, coef * Math.pow(coords[subscript][0], pow) * invert);
-            pow++;
-            coef++;
+            //Make sure that the current function touches its second endpoint
+            subscript++;
+            for(int i = 0; i < 4; i++){
+                megaMatrix.set(n+2, i + matrixOffset, Math.pow(coords[subscript][0], pow));
+                pow++;
             }
             pow = -1;
+
+            //Make sure that both funcitons touching the 2nd endpoint have equal 1st derivatives
+            //There are 2 "parts" to this line, with the 2nd being the inverse of the 1st
+            int invert = 1;
+            int inlineOffset = 0;
+            for(int i = 0; i < 2; i++){
+                for(int j = 0; j < 4; j++){
+                    megaMatrix.set(n+3, j + inlineOffset + matrixOffset, coef * Math.pow(coords[subscript][0], pow) * invert);
+                    pow++;
+                    coef++;
+                }
+                pow = -1;
+                coef = 0;
+                invert = -1;
+                inlineOffset = 4;
+            }
+            invert = 1;
+            inlineOffset = 0;
+            pow = 0;
             coef = 0;
-            invert = -1;
-            inlineOffset = 4;
-        }
-        invert = 1;
-        inlineOffset = 0;
-        pow = 0;
-        coef = 0;
 
-        //Make sure that both funcitons touching the 2nd endpoint have equal 2nd derivatives
-        //Again, there are 2 "parts" to this line, with the 2nd being the inverse of the 1st
-        for(int i = 0; i < 2; i++){
-            megaMatrix.set(n+4, inlineOffset + matrixOffset, 0);
-            megaMatrix.set(n+4, inlineOffset + 1 + matrixOffset, 0);
-            megaMatrix.set(n+4, inlineOffset + 2 + matrixOffset, 2 * invert);
-            megaMatrix.set(n+4, inlineOffset + 3 + matrixOffset, 6 * coords[subscript][0] * invert);
+            //Make sure that both funcitons touching the 2nd endpoint have equal 2nd derivatives
+            //Again, there are 2 "parts" to this line, with the 2nd being the inverse of the 1st
+            for(int i = 0; i < 2; i++){
+                megaMatrix.set(n+4, inlineOffset + matrixOffset, 0);
+                megaMatrix.set(n+4, inlineOffset + 1 + matrixOffset, 0);
+                megaMatrix.set(n+4, inlineOffset + 2 + matrixOffset, 2 * invert);
+                megaMatrix.set(n+4, inlineOffset + 3 + matrixOffset, 6 * coords[subscript][0] * invert);
 
-            inlineOffset = 4;
-            invert = -1;
-        }
+                inlineOffset = 4;
+                invert = -1;
+            }
 
-        //Then repeat for all middle functions, but shift all of these matrix fillers right 4 rows
-        matrixOffset = matrixOffset + 4;
+            //Then repeat for all middle functions, but shift all of these matrix fillers right 4 rows
+            matrixOffset = matrixOffset + 4;
 
         }
 
@@ -140,16 +140,16 @@ public class PathEQ {
 
         //Make sure that the last function touches its first endpoint
         for(int i = 0; i < 4; i++){
-        megaMatrix.set(megaMatrix.numRows()-3, i + matrixOffset, Math.pow(coords[subscript][0], pow));
-        pow++;
+            megaMatrix.set(megaMatrix.numRows()-3, i + matrixOffset, Math.pow(coords[subscript][0], pow));
+            pow++;
         }
         pow = 0;
 
         //Make sure that the last function touches the endpoint for the whole path
         subscript++;
         for(int i = 0; i < 4; i++){
-        megaMatrix.set(megaMatrix.numRows()-2, i + matrixOffset, Math.pow(coords[subscript][0], pow));
-        pow++;
+            megaMatrix.set(megaMatrix.numRows()-2, i + matrixOffset, Math.pow(coords[subscript][0], pow));
+            pow++;
         }
         pow = 0;
         coef = 1;
@@ -157,9 +157,9 @@ public class PathEQ {
         //Make sure that the ending point of the path has the correct slope (fill last line)
         matrixOffset = matrixOffset + 1;
         for(int i = 0; i < 3; i++){
-        megaMatrix.set(megaMatrix.numRows()-1, i + matrixOffset, coef * Math.pow(coords[subscript][0], pow));
-        pow++;
-        coef++;
+            megaMatrix.set(megaMatrix.numRows()-1, i + matrixOffset, coef * Math.pow(coords[subscript][0], pow));
+            pow++;
+            coef++;
         }
 
 
@@ -176,26 +176,26 @@ public class PathEQ {
         for(int xy = 1; xy < 3; xy++){
 
 
-        //Put the 1st specified slope as the top spot
-        solverMatrix.set(0, 0, beginningSlope);
-        
-        //Manually fill the 2nd line to make the for loop more effecient
-        solverMatrix.set(1, 0, coords[0][xy]);
-
-        subscript = 1;
-
-        //fill the middle function x/y values
-        for(int i = 0; i < coords.length-2; i++){
+            //Put the 1st specified slope as the top spot
+            solverMatrix.set(0, 0, beginningSlope);
             
-            //used to determine which row to put values on
-            int n = i * 4;
+            //Manually fill the 2nd line to make the for loop more effecient
+            solverMatrix.set(1, 0, coords[0][xy]);
 
-            solverMatrix.set(n + 2, 0, coords[subscript][xy]);
-            solverMatrix.set(n + 3, 0, 0);
-            solverMatrix.set(n + 4, 0, 0);
-            solverMatrix.set(n + 5, 0, coords[subscript][xy]);
+            subscript = 1;
 
-            subscript++;
+            //fill the middle function x/y values
+            for(int i = 0; i < coords.length-2; i++){
+                
+                //used to determine which row to put values on
+                int n = i * 4;
+
+                solverMatrix.set(n + 2, 0, coords[subscript][xy]);
+                solverMatrix.set(n + 3, 0, 0);
+                solverMatrix.set(n + 4, 0, 0);
+                solverMatrix.set(n + 5, 0, coords[subscript][xy]);
+
+                subscript++;
 
         }
 
@@ -220,20 +220,20 @@ public class PathEQ {
 
 
         for(int i = 0; i < coefMatrix.numRows()/4; i++){
+            
+            //Set up ending u value
+            pathEQXCoefs[i][0] = coords[i+1][0];
+            pathEQYCoefs[i][0] = coords[i+1][0];
 
-        //Set up ending u value
-        pathEQXCoefs[i][0] = coords[i+1][0];
-        pathEQYCoefs[i][0] = coords[i+1][0];
+            //Set up X coefs
+            for(int j = 0; j < 4; j++){
+                pathEQXCoefs[i][j+1] = coefMatrix.get(j + (i*4), 0);
+            }
 
-        //Set up X coefs
-        for(int j = 0; j < 4; j++){
-            pathEQXCoefs[i][j+1] = coefMatrix.get(j + (i*4), 0);
-        }
-
-        //Set up Y coefs
-        for(int j = 0; j < 4; j++){
-            pathEQYCoefs[i][j+1] = coefMatrix.get(j + (i*4), 1);
-        }
+            //Set up Y coefs
+            for(int j = 0; j < 4; j++){
+                pathEQYCoefs[i][j+1] = coefMatrix.get(j + (i*4), 1);
+            }
         }
 
 
