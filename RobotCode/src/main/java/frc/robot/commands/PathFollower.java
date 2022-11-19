@@ -78,14 +78,19 @@ public class PathFollower extends CommandBase {
     double[] currentPos = {drivetrain.getRoundedOdometryY(), -drivetrain.getRoundedOdometryX()};
     targetPoint = pathEQ.solve(targetUValue);
     
+    //With SlewRateLimiter
     //slope = slopeSmoother.calculate(pathEQ.slope(targetPoint, currentPos));
-    rise = riseSmoother.calculate(pathEQ.slopeRiseRun(targetPoint, currentPos)[1]);
-    run = runSmoother.calculate(pathEQ.slopeRiseRun(targetPoint, currentPos)[0]);
+    //rise = riseSmoother.calculate(pathEQ.slopeRiseRun(targetPoint, currentPos)[1]);
+    //run = runSmoother.calculate(pathEQ.slopeRiseRun(targetPoint, currentPos)[0]);
 
-    slope = pathEQ.slope(targetPoint, currentPos);
+    //Raw values
+    //slope = pathEQ.slope(targetPoint, currentPos);
     //rise = pathEQ.slopeRiseRun(targetPoint, currentPos)[1];
     //run = pathEQ.slopeRiseRun(targetPoint, currentPos)[0];
 
+    slope = pathEQ.slope(targetPoint, currentPos);
+    rise = slope;
+    run = 1;
   
     //Moving Forward
     if(targetPoint[1] > currentPos[1]){
