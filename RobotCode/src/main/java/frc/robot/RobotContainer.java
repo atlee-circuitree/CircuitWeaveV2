@@ -26,9 +26,10 @@ public class RobotContainer {
 
   private final DriveWithXbox driveWithXbox;
 
-  private final PathGenerator pathGenerator;
+  //private final PathGenerator pathGenerator;
   private final PathFollower pathFollower;
-  private final TestPathFollower testPathFollower;
+  //private final TestPathFollower testPathFollower;
+  private final PathEQ pathEQ; 
 
 
   public XboxController xbox = new XboxController(0);
@@ -39,15 +40,18 @@ public class RobotContainer {
     
     drivetrain = new Drivetrain();
 
+    pathEQ = new PathEQ(Constants.autoCoordinates, true);
+
     //Teleop commands
     driveWithXbox = new DriveWithXbox(drivetrain, xbox, false);
     driveWithXbox.addRequirements(drivetrain);
     drivetrain.setDefaultCommand(driveWithXbox);
 
-    pathGenerator = new PathGenerator();
+    //pathGenerator = new PathGenerator();
 
-    pathFollower = new PathFollower(drivetrain, pathGenerator.pathEQ, 0.25, 0.05);
-    testPathFollower = new TestPathFollower(drivetrain, pathGenerator.pathEQ, 0.1, 0.05);
+    pathFollower = new PathFollower(drivetrain, pathEQ, 0.1, 0.01);
+    //testPathFollower = new TestPathFollower(drivetrain, pathEQ, 0.1, 0.05);
+    
     
 
     configureButtonBindings();

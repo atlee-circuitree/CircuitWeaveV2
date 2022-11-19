@@ -32,7 +32,7 @@ public class PathGenerator extends CommandBase {
 
   //coords are written in the form (u,x,y)
   //u being the order in which the robot drives through the points
-  double[][] coords = {{0,0,0}, {1,0,1}, {2,0,2}};
+  double[][] coords = {{0,0,0}, {1,-0.25,0.5}, {2,0.25,1}, {3,0,1.5}};
   double beginningSlope = 0;
   double endingSlope = 0;
 

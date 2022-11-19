@@ -33,15 +33,7 @@ public class PathEQ {
     int coef = 1;
     int matrixOffset = 0;
 
-    //A really big matrix. Contains all of the function constraints and modified u values
-    SimpleMatrix megaMatrix = new SimpleMatrix((coords.length-1)*4, (coords.length-1)*4);
     
-    //Holds the x/y values and input slopes. It is used with megaMatrix to solve for the x/y coeffecients
-    SimpleMatrix solverMatrix = new SimpleMatrix((coords.length-1)*4, 1);
-    
-    //Holds all of the calculated coeffecients of each function
-    SimpleMatrix coefMatrix = new SimpleMatrix((coords.length-1)*4, 2);
-
     //Used to round the calculated values
     DecimalFormat rounder = new DecimalFormat("###.####");
 
@@ -54,6 +46,16 @@ public class PathEQ {
     public PathEQ(double[][] inputCoordinates, boolean runDesmos){
 
         coords = inputCoordinates;
+
+        //A really big matrix. Contains all of the function constraints and modified u values
+        SimpleMatrix megaMatrix = new SimpleMatrix((coords.length-1)*4, (coords.length-1)*4);
+    
+        //Holds the x/y values and input slopes. It is used with megaMatrix to solve for the x/y coeffecients
+        SimpleMatrix solverMatrix = new SimpleMatrix((coords.length-1)*4, 1);
+    
+        //Holds all of the calculated coeffecients of each function
+        SimpleMatrix coefMatrix = new SimpleMatrix((coords.length-1)*4, 2);
+
 
 
         //// FILL MEGAMATRIX START (u matrix) ////////////////////////////////////////////////////////////////////////////////////
@@ -197,17 +199,17 @@ public class PathEQ {
 
                 subscript++;
 
-        }
+            }
 
-        //Manually fill the 2nd to last line
-        solverMatrix.set(solverMatrix.numRows()-2, 0, coords[subscript][xy]);
+            //Manually fill the 2nd to last line
+            solverMatrix.set(solverMatrix.numRows()-2, 0, coords[subscript][xy]);
 
-        //Set the 2nd specified slope as the last line
-        solverMatrix.set(solverMatrix.numRows()-1, 0, endingSlope);
+            //Set the 2nd specified slope as the last line
+            solverMatrix.set(solverMatrix.numRows()-1, 0, endingSlope);
 
 
 
-        coefMatrix.insertIntoThis(0, xy-1, megaMatrix.invert().mult(solverMatrix));
+            coefMatrix.insertIntoThis(0, xy-1, megaMatrix.invert().mult(solverMatrix));
 
         
         }

@@ -525,13 +525,13 @@ public double getOdometryZ(){
 }
 
 public double getRoundedOdometryX(){
-  return Double.valueOf(odometryRounder.format(Math.abs(odometry.getPoseMeters().getX())));
+  return Double.valueOf(odometryRounder.format(odometry.getPoseMeters().getX()));
 }
 public double getRoundedOdometryY(){
-  return Double.valueOf(odometryRounder.format(Math.abs(odometry.getPoseMeters().getY())));
+  return Double.valueOf(odometryRounder.format(odometry.getPoseMeters().getY()));
 }
 public double getRoundedOdometryZ(){
-  return Double.valueOf(odometryRounder.format(Math.abs(odometry.getPoseMeters().getRotation().getDegrees())));
+  return Double.valueOf(odometryRounder.format(odometry.getPoseMeters().getRotation().getDegrees()));
 }
 
 

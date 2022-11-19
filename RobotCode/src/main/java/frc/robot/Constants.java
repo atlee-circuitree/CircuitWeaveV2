@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj.I2C;
  */
 public final class Constants {
 
+    public static final double[][] autoCoordinates = {{0,0,0}, {1,-0.25,0.5}, {2,0.25,1}, {3,0,1.5}};
+
     public static final int frontLeftDrvMotorPort = 4;
     public static final int frontRightDrvMotorPort = 2;
     public static final int rearLeftDrvMotorPort = 6;

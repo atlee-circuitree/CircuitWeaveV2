@@ -2,6 +2,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -26,9 +27,13 @@ public class PathFollower extends CommandBase {
   private double rise;
   private double run;
 
+  private SlewRateLimiter slopeSmoother = new SlewRateLimiter(1);
+  private SlewRateLimiter riseSmoother = new SlewRateLimiter(0.001);
+  private SlewRateLimiter runSmoother = new SlewRateLimiter(0.001);
+
   private double targetUValue = 0;
   private double[] targetPoint = new double[2];
-  private double uIncrement = 0.2;
+  private double uIncrement;
 
   private double forward = 0;
   private double strafe = 0;
@@ -55,7 +60,7 @@ public class PathFollower extends CommandBase {
 
     targetUValue = 0;
     targetPoint = new double[2];
-    uIncrement = 0.5;
+    uIncrement = 0.1;
 
     forward = 0;
     strafe = 0;
@@ -70,12 +75,16 @@ public class PathFollower extends CommandBase {
 
     //Auto calculations
 
-    double[] currentPos = {drivetrain.getRoundedOdometryY(), drivetrain.getRoundedOdometryX()};
+    double[] currentPos = {drivetrain.getRoundedOdometryY(), -drivetrain.getRoundedOdometryX()};
     targetPoint = pathEQ.solve(targetUValue);
     
+    //slope = slopeSmoother.calculate(pathEQ.slope(targetPoint, currentPos));
+    rise = riseSmoother.calculate(pathEQ.slopeRiseRun(targetPoint, currentPos)[1]);
+    run = runSmoother.calculate(pathEQ.slopeRiseRun(targetPoint, currentPos)[0]);
+
     slope = pathEQ.slope(targetPoint, currentPos);
-    rise = pathEQ.slopeRiseRun(targetPoint, currentPos)[1];
-    run = pathEQ.slopeRiseRun(targetPoint, currentPos)[0];
+    //rise = pathEQ.slopeRiseRun(targetPoint, currentPos)[1];
+    //run = pathEQ.slopeRiseRun(targetPoint, currentPos)[0];
 
   
     //Moving Forward
@@ -132,7 +141,7 @@ public class PathFollower extends CommandBase {
     }
 
     forward = -forward;
-    strafe = -strafe;
+    strafe = strafe;
 
 
     /* OLD CODE
@@ -231,12 +240,16 @@ public class PathFollower extends CommandBase {
     SmartDashboard.putString("Breakpoint 1", "tripped");
 
     SmartDashboard.putNumberArray("TargetPoint", targetPoint);
+    SmartDashboard.putNumber("target Pos X", targetPoint[0]);
+    SmartDashboard.putNumber("target Pos Y", targetPoint[1]);
 
     
 
     SmartDashboard.putNumber("speedMod", speedMod);
 
     SmartDashboard.putNumberArray("current Pos", currentPos);
+    SmartDashboard.putNumber("current Pos X", currentPos[0]);
+    SmartDashboard.putNumber("current Pos Y", currentPos[1]);
 
     SmartDashboard.putBoolean("Is Finished", isFinished);
 
