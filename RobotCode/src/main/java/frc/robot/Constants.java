@@ -59,6 +59,19 @@ public final class Constants {
     public static final double rotPID_D = 0.00;
     public static final double rotPIDMinValue = 0.07;
 
+    //Auto PIDs
+    public static final double xControllerP = 0;
+    public static final double xControllerI = 0;
+    public static final double xControllerD = 0;
+
+    public static final double yControllerP = 0;
+    public static final double yControllerI = 0;
+    public static final double yControllerD = 0;
+
+    public static final double zControllerP = 0;
+    public static final double zControllerI = 0;
+    public static final double zControllerD = 0;
+
 
     //Instansiated in this order:
     //FrontLeft, FrontRight, RearLeft, RearRight

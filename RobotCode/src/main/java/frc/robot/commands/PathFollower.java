@@ -2,10 +2,18 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.controller.HolonomicDriveController;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.Trajectory.State;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -20,6 +28,13 @@ import java.lang.Math;
 public class PathFollower extends CommandBase {
 
   private final Drivetrain drivetrain;
+  
+  private PIDController xPID = new PIDController(Constants.xControllerP, Constants.xControllerI, Constants.xControllerD);
+  private PIDController yPID = new PIDController(Constants.yControllerP, Constants.yControllerI, Constants.yControllerD);
+  private ProfiledPIDController zPID = new ProfiledPIDController(
+    Constants.zControllerP, Constants.zControllerI, Constants.zControllerD, new Constraints(1.0, 1.0));
+
+  private HolonomicDriveController driveController = new HolonomicDriveController(xPID, yPID, zPID);
   
   private PathEQ pathEQ;
   private double slope;
@@ -75,9 +90,22 @@ public class PathFollower extends CommandBase {
 
     //Auto calculations
 
-    double[] currentPos = {drivetrain.getRoundedOdometryY(), -drivetrain.getRoundedOdometryX()};
-    targetPoint = pathEQ.solve(targetUValue);
+    //double[] currentPos = {drivetrain.getRoundedOdometryY(), -drivetrain.getRoundedOdometryX()};
+    //targetPoint = pathEQ.solve(targetUValue);
     
+    Pose2d currentPos = new Pose2d(drivetrain.getRoundedOdometryY(), -drivetrain.getRoundedOdometryX(),
+    new Rotation2d(Math.toRadians(drivetrain.getRoundedOdometryZ())));
+
+    //Change rotation2d references to actual target value once overlay is added
+    Pose2d targetPos = new Pose2d(pathEQ.solve(targetUValue)[0], pathEQ.solve(targetUValue)[1],
+    new Rotation2d(0));
+
+    ChassisSpeeds chassisSpeeds = driveController.calculate(currentPos, targetPos, 1.0, new Rotation2d(0));
+
+    SwerveModuleState[] calculatedStates = Constants.driveKinematics.toSwerveModuleStates(chassisSpeeds);
+  
+
+    /* OLD CODE
     //With SlewRateLimiter
     //slope = slopeSmoother.calculate(pathEQ.slope(targetPoint, currentPos));
     //rise = riseSmoother.calculate(pathEQ.slopeRiseRun(targetPoint, currentPos)[1]);
@@ -149,91 +177,6 @@ public class PathFollower extends CommandBase {
     strafe = strafe;
 
 
-    /* OLD CODE
-
-    //If the target u value is greater than the final u value, the robot has finished moving
-    if(targetUValue > pathEQ.getFinalUValue()){
-      isFinished = true;
-    }
-
-
-    //Calculate the slope of the line passing through our current position and the target position
-    double[] currentPos = {drivetrain.getRoundedOdometryY(), drivetrain.getRoundedOdometryX()};
-    slope = pathEQ.slope(currentPos, pathEQ.solve(targetUValue));
-    slopeSign = Math.abs(slope)/slope;
-
-    //Find new target value
-    targetPoint = pathEQ.solve(targetUValue);
-    //If we have reached the current target X value
-    if(targetPoint[0] - tolerance < currentPos[0] && currentPos[0] < targetPoint[0] + tolerance){
-      //And the current target Y value
-      if(targetPoint[1] - tolerance < currentPos[1] && currentPos[1] < targetPoint[1] + tolerance){
-        //Set the next target u value and point
-        targetUValue = targetUValue + uIncrement;
-        targetPoint = pathEQ.solve(targetUValue);
-      }
-    }
-
-    
-
-
-
-    //Convert that slope to X/Y movement speeds
-    //If the slope is purely vertical, the slope var will either be + or - infinity
-    if(slope == Double.POSITIVE_INFINITY || slope == Double.NEGATIVE_INFINITY){
-    
-      //Figure out whether we want to go straight up or down
-      //If the target Y value is ahead of the current Y value, we go forward
-      if(targetPoint[1] > currentPos[1]){
-        forward = 1;
-        strafe = 0;
-      }
-      //Otherwise, we go backwards
-      else{
-        forward = -1;
-        strafe = 0;
-      }
-    
-    }
-
-
-    //If the |slope| > 1, then we know that the forward value has to be 1 or -1, and the strafe value has to be < 1 or > -1
-    else if(Math.abs(slope) >= 1){
-      //If the target Y value is above the current one, we go up and to the left/right depending on the slope sign
-      if(targetPoint[1] > currentPos[1]){
-        forward = 1;
-        strafe = (Math.abs(1/slope)) * slopeSign;
-      }
-      //Otherwise we go down and to the right/left
-      else{
-        forward = -1;
-        strafe = (Math.abs(1/slope)) * -slopeSign;
-      }
-    }
-
-    //If the |slope| < 1, then we know that the strafe value has to be 1 or -1 and the fwd value has to be < 1 or > -1
-    else if(Math.abs(slope) < 1){
-      //If the target Y value is above the current one, we go up and to the left/right depending on the slope sign 
-      if(targetPoint[1] > currentPos[1]){
-        forward = Math.abs(1/slope);
-        strafe = 1 * slopeSign;
-      }
-      //Otherwise we go to the left
-      else{
-        forward = -Math.abs(1/slope);
-        strafe = -1 * slopeSign;
-      }
-    }
-
-    //This block should never be triggered, but just in case
-    else{
-      forward = 0;
-      strafe = 0;
-    }
-
-    //invert Y speed
-    forward = forward * -1;
-
     */
 
     double[] fsrArray = {forward, strafe, rotation};
@@ -245,16 +188,16 @@ public class PathFollower extends CommandBase {
     SmartDashboard.putString("Breakpoint 1", "tripped");
 
     SmartDashboard.putNumberArray("TargetPoint", targetPoint);
-    SmartDashboard.putNumber("target Pos X", targetPoint[0]);
-    SmartDashboard.putNumber("target Pos Y", targetPoint[1]);
+    SmartDashboard.putNumber("target Pos X", targetPos.getX());
+    SmartDashboard.putNumber("target Pos Y", targetPos.getY());
 
     
 
     SmartDashboard.putNumber("speedMod", speedMod);
 
-    SmartDashboard.putNumberArray("current Pos", currentPos);
-    SmartDashboard.putNumber("current Pos X", currentPos[0]);
-    SmartDashboard.putNumber("current Pos Y", currentPos[1]);
+    //SmartDashboard.putNumberArray("current Pos", currentPos);
+    SmartDashboard.putNumber("current Pos X", currentPos.getX());
+    SmartDashboard.putNumber("current Pos Y", currentPos.getY());
 
     SmartDashboard.putBoolean("Is Finished", isFinished);
 
@@ -266,7 +209,7 @@ public class PathFollower extends CommandBase {
 
     SmartDashboard.putNumber("Slope", slope);
 
-    SmartDashboard.putBoolean("Ty > Cy", targetPoint[1] > currentPos[1]);
+    //SmartDashboard.putBoolean("Ty > Cy", targetPoint[1] > currentPos[1]);
 
     SmartDashboard.putNumber("Rise", rise);
     SmartDashboard.putNumber("Run", run);
@@ -275,7 +218,7 @@ public class PathFollower extends CommandBase {
 
 
     //Regular Teleop from here on out
-
+    /*
 
     //Modify target values for field orientation (temp used to save calculations before original forward and strafe values are modified)
     double temp = forward * Math.cos(-drivetrain.getNavXOutputRadians()) + strafe * Math.sin(-drivetrain.getNavXOutputRadians()); 
@@ -313,6 +256,34 @@ public class PathFollower extends CommandBase {
       rearLeftSpeed = rearLeftSpeed / max;
       rearRightSpeed = rearRightSpeed / max;
     }
+    */
+
+
+    //Calculates module speeds
+    double frontLeftSpeed = calculatedStates[0].speedMetersPerSecond;
+    double frontRightSpeed = calculatedStates[1].speedMetersPerSecond;
+    double rearLeftSpeed = calculatedStates[2].speedMetersPerSecond;
+    double rearRightSpeed = calculatedStates[3].speedMetersPerSecond;
+
+    //Normalizes speeds (makes sure that none are > 1)
+    double max = frontLeftSpeed;
+    if(max < frontRightSpeed){
+      max = frontRightSpeed;
+    }
+    if(max < rearLeftSpeed){
+      max = rearLeftSpeed;
+    } 
+    if(max < rearRightSpeed){
+      max = rearRightSpeed;
+    }
+    if(max > 1){
+      frontLeftSpeed = frontLeftSpeed / max;
+      frontRightSpeed = frontRightSpeed / max;
+      rearLeftSpeed = rearLeftSpeed / max;
+      rearRightSpeed = rearRightSpeed / max;
+    }
+
+
 
     //Make SURE the robot stops whenthe joysticks are 0
     if(forward == 0 && strafe == 0 && rotation == 0){
@@ -321,17 +292,17 @@ public class PathFollower extends CommandBase {
       drivetrain.rotateMotor(Motors.REAR_LEFT_DRV, 0);
       drivetrain.rotateMotor(Motors.REAR_RIGHT_DRV, 0);
 
-      drivetrain.rotateModule(SwerveModule.FRONT_LEFT, Math.atan2(B, C)*(180/Math.PI), 0);
-      drivetrain.rotateModule(SwerveModule.FRONT_RIGHT, Math.atan2(B, D)*(180/Math.PI), 0);
-      drivetrain.rotateModule(SwerveModule.REAR_LEFT, Math.atan2(A, C)*(180/Math.PI), 0);
-      drivetrain.rotateModule(SwerveModule.REAR_RIGHT, Math.atan2(A, D)*(180/Math.PI), 0);
+      drivetrain.rotateModule(SwerveModule.FRONT_LEFT, calculatedStates[0].angle.getDegrees(), 0);
+      drivetrain.rotateModule(SwerveModule.FRONT_RIGHT, calculatedStates[1].angle.getDegrees(), 0);
+      drivetrain.rotateModule(SwerveModule.REAR_LEFT, calculatedStates[2].angle.getDegrees(), 0);
+      drivetrain.rotateModule(SwerveModule.REAR_RIGHT, calculatedStates[3].angle.getDegrees(), 0);
     }
     else{
       //Set angles for modules (change speed mod later if needed)
-      drivetrain.rotateModule(SwerveModule.FRONT_LEFT, Math.atan2(B, C)*(180/Math.PI), 1);
-      drivetrain.rotateModule(SwerveModule.FRONT_RIGHT, Math.atan2(B, D)*(180/Math.PI), 1);
-      drivetrain.rotateModule(SwerveModule.REAR_LEFT, Math.atan2(A, C)*(180/Math.PI), 1);
-      drivetrain.rotateModule(SwerveModule.REAR_RIGHT, Math.atan2(A, D)*(180/Math.PI), 1);
+      drivetrain.rotateModule(SwerveModule.FRONT_LEFT, calculatedStates[0].angle.getDegrees(), 1);
+      drivetrain.rotateModule(SwerveModule.FRONT_RIGHT, calculatedStates[1].angle.getDegrees(), 1);
+      drivetrain.rotateModule(SwerveModule.REAR_LEFT, calculatedStates[2].angle.getDegrees(), 1);
+      drivetrain.rotateModule(SwerveModule.REAR_RIGHT, calculatedStates[3].angle.getDegrees(), 1);
 
       //Set speeds for modules
       drivetrain.rotateMotor(Motors.FRONT_LEFT_DRV, frontLeftSpeed * speedMod);
@@ -354,9 +325,9 @@ public class PathFollower extends CommandBase {
 
 
     //If we have reached the current target X value
-    if(targetPoint[0] - tolerance < currentPos[0] && currentPos[0] < targetPoint[0] + tolerance){
+    if(targetPos.getX() - tolerance < currentPos.getX() && currentPos.getX() < targetPos.getX() + tolerance){
       //And the current target Y value
-      if(targetPoint[1] - tolerance < currentPos[1] && currentPos[1] < targetPoint[1] + tolerance){
+      if(targetPos.getY() - tolerance < currentPos.getY() && currentPos.getY() < targetPos.getY() + tolerance){
         //Set the next target u value
         targetUValue = targetUValue + uIncrement;
       }
