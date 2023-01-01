@@ -63,7 +63,7 @@ public class TestPathFollower extends CommandBase {
     //Auto calculations
 
     double[] currentPos = {0, artificialY};
-    targetPoint = pathEQ.solve(targetUValue);
+    targetPoint = pathEQ.solvePoint(targetUValue);
     
     slope = pathEQ.slope(currentPos, targetPoint);
     rise = pathEQ.slopeRiseRun(currentPos, targetPoint)[1];

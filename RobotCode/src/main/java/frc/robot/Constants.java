@@ -21,7 +21,8 @@ import edu.wpi.first.wpilibj.I2C;
  */
 public final class Constants {
 
-    public static final double[][] autoCoordinates = {{0,0,0}, {1,-0.25,0.5}, {2,0.25,1}, {3,0,1.5}};
+    //Declare coordinates in the form {u, x, y, angle}
+    public static final double[][] autoCoordinates = {{0, 0.3,0 ,0}, {1, 0,0.3 ,0}, {2, -0.3,0 ,0}, {3, 0,-0.3 ,0}, {4, 0,0, 0}};
 
     public static final int frontLeftDrvMotorPort = 4;
     public static final int frontRightDrvMotorPort = 2;
@@ -60,27 +61,36 @@ public final class Constants {
     public static final double rotPIDMinValue = 0.07;
 
     //Auto PIDs
-    public static final double xControllerP = 0;
-    public static final double xControllerI = 0;
+    public static final double xControllerP = 7;
+    public static final double xControllerI = 2;
     public static final double xControllerD = 0;
 
-    public static final double yControllerP = 0;
-    public static final double yControllerI = 0;
+    public static final double yControllerP = 7;
+    public static final double yControllerI = 2;
     public static final double yControllerD = 0;
 
-    public static final double zControllerP = 0;
+    public static final double zControllerP = 0.5;
     public static final double zControllerI = 0;
     public static final double zControllerD = 0;
 
 
     //Instansiated in this order:
     //FrontLeft, FrontRight, RearLeft, RearRight
+    /*
     public static final SwerveDriveKinematics driveKinematics =
         new SwerveDriveKinematics(
             new Translation2d(wheelbase / 2, -trackwidth / 2),
             new Translation2d(wheelbase / 2, trackwidth / 2),
             new Translation2d(-wheelbase / 2, -trackwidth / 2),
             new Translation2d(-wheelbase / 2, trackwidth / 2));
+    */
+    public static final SwerveDriveKinematics driveKinematics =
+        new SwerveDriveKinematics(
+            new Translation2d(-trackwidth / 2, wheelbase / 2),
+            new Translation2d(trackwidth / 2, wheelbase / 2),
+            new Translation2d(-trackwidth / 2, -wheelbase / 2),
+            new Translation2d(trackwidth / 2, -wheelbase / 2));
+
 
     // Constraint for the motion profilied robot angle controller
     public static final TrapezoidProfile.Constraints thetaControllerConstraints =

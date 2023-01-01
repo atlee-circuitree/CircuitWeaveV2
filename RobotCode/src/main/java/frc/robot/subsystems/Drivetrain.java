@@ -484,12 +484,12 @@ public class Drivetrain extends SubsystemBase {
   public double positionChangePer100msToMetersPerSecond(double posChangePer100ms){
     
     //posChangePer100ms/10 = posChangePerSecond
-
-    //posChangePerSecond/46.4213 = degreesPerSecond (46.4213 being the encoder counts per degree)
+    //Encoder CPR * Gear Ratio / 360 = encoder counts per degree
+    //posChangePerSecond/34.816 = degreesPerSecond (34.816 being the encoder counts per degree)
     //(degreesPerSecond * PI/180) = radiansPerSecond
     //radiansPerSecond*0.0508 = metersPerSecond (0.0508 being the radius of the wheel in meters)
 
-    double degreesPerSecond = (posChangePer100ms*10)/46.4213;
+    double degreesPerSecond = (posChangePer100ms*10)/34.816;
     double metersPerSecond = (degreesPerSecond*(Math.PI/180))*0.0508;
 
     return metersPerSecond;
@@ -514,31 +514,32 @@ public Pose2d getPose(){
   return odometry.getPoseMeters();
 }
 
-public double getOdometryX(){
+public double getRawOdometryX(){
   return odometry.getPoseMeters().getX();
 }
-public double getOdometryY(){
+public double getRawOdometryY(){
   return odometry.getPoseMeters().getY();
 }
-public double getOdometryZ(){
+public double getRawOdometryZ(){
   return odometry.getPoseMeters().getRotation().getDegrees();
 }
 
-public double getRoundedOdometryX(){
-  return Double.valueOf(odometryRounder.format(odometry.getPoseMeters().getX()));
-}
-public double getRoundedOdometryY(){
+//getOdometryX() is actually rounded .getY, and getOdometryY is actually rounded/inverted .getX 
+public double getOdometryX(){
   return Double.valueOf(odometryRounder.format(odometry.getPoseMeters().getY()));
 }
-public double getRoundedOdometryZ(){
-  return Double.valueOf(odometryRounder.format(odometry.getPoseMeters().getRotation().getDegrees()));
+public double getOdometryY(){
+  return -Double.valueOf(odometryRounder.format(odometry.getPoseMeters().getX()));
+}
+public double getOdometryZ(){
+  return -Double.valueOf(odometryRounder.format(odometry.getPoseMeters().getRotation().getDegrees()));
 }
 
 
 public void resetOdometry(Pose2d pose2d) {
   odometry.resetPosition(pose2d, navx.getRotation2d());
 }
-
+/*
 public void updateOdometry(){
     odometry.update(navx.getRotation2d(), 
     new SwerveModuleState(positionChangePer100msToMetersPerSecond(frontLeftDrvMotor.getSelectedSensorVelocity()), 
@@ -553,7 +554,7 @@ public void updateOdometry(){
     new SwerveModuleState(positionChangePer100msToMetersPerSecond(rearRightDrvMotor.getSelectedSensorVelocity()), 
     Rotation2d.fromDegrees(getRotEncoderValue(SwerveModule.REAR_RIGHT))));
 }
-
+*/
 public void setSwerveModuleStates(SwerveModuleState[] targetState){
   rotateModule(SwerveModule.FRONT_LEFT, targetState[0].angle.getDegrees(), 1);
   rotateModule(SwerveModule.FRONT_RIGHT, targetState[1].angle.getDegrees(), 1);

@@ -299,9 +299,23 @@ public class PathEQ {
             }
 
         }
+    
         
+        SmartDashboard.putNumber("solveAngle(0)", solveAngle(0));
+        SmartDashboard.putNumber("solveAngle(1)", solveAngle(1));
+        SmartDashboard.putNumber("solveAngle(2)", solveAngle(2));
+        SmartDashboard.putNumber("solveAngle(3)", solveAngle(3));
+        SmartDashboard.putNumber("solveAngle(4)", solveAngle(4));
 
     }
+
+
+
+
+
+
+
+
 
 
     public void dashboardYCoefs(){
@@ -315,7 +329,7 @@ public class PathEQ {
      * @param uValue Input a U value
      * @return Returns the {X,Y} output for the specified U value
     */
-    public double[] solve(double uValue){
+    public double[] solvePoint(double uValue){
 
         //Figure out which chunk of coefs contains the U value that we are searching for
 
@@ -367,6 +381,38 @@ public class PathEQ {
     }
 
 
+    public double solveAngle(double uValue){
+
+        double targetTheta;
+        double endpoints[][] = new double[2][2];
+
+        //If u too big, return final heading
+        if(uValue >= Constants.autoCoordinates[Constants.autoCoordinates.length-1][0]){
+            targetTheta = Constants.autoCoordinates[Constants.autoCoordinates.length-1][3];
+        }
+        //If u too small, return first heading
+        else if(uValue <= Constants.autoCoordinates[0][0]){
+            targetTheta = Constants.autoCoordinates[0][3];
+        }
+        //Otherwise, cycle through each coordinate to find which ones uValue falls between
+        else{
+            for(int i = 0; i < Constants.autoCoordinates.length; i++){
+                if(uValue <= Constants.autoCoordinates[i][0]){
+                    endpoints[0][0] = Constants.autoCoordinates[i-1][0];
+                    endpoints[0][1] = Constants.autoCoordinates[i-1][3];
+                    endpoints[1][0] = Constants.autoCoordinates[i][0];
+                    endpoints[1][1] = Constants.autoCoordinates[i][3];
+                    break;
+                }
+            }
+
+            targetTheta = (slope(endpoints[0], endpoints[1]) * (uValue - endpoints[0][0])) + endpoints[0][1];
+
+        }
+
+        return targetTheta;
+
+    }
 
 
     /**
